@@ -40,7 +40,7 @@ public class AddressBookServiceTest {
 
     @Test
     public void searchByNameReturnsContactMatchingTheNameGiven() {
-        assert (addressBookService.addNewEntry(testName, testPhoneNumber));
+        assertTrue(addressBookService.addNewEntry(testName, testPhoneNumber));
         assertEquals(new Contact(testName, testPhoneNumber), addressBookService.searchByName(testName));
     }
 
