@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 public class AddressBookControllerTest {
     private String testName = "test name";
     private String testPhoneNumber = "+00 1234567890";
+    private String testBook = "test book";
     @Mock
     private AddressBookService addressBookService;
 
@@ -59,5 +60,38 @@ public class AddressBookControllerTest {
 
         when(addressBookService.getAllEntries()).thenReturn(mockContactList);
         assertEquals(expectedResult, addressBookController.readAllEntries());
+    }
+
+    @Test
+    public void addNewBookShouldPassNewBookNameToAddressBookServiceService() {
+        addressBookController.addNewBook(testBook);
+        verify(addressBookService).addNewBook(testBook);
+    }
+
+    @Test
+    public void addNewEntryShouldPassNewAddressAndBookNameToAddressBookService() {
+        addressBookController.addNewEntry(testName, testPhoneNumber, testBook);
+        verify(addressBookService).addNewEntry(testName, testPhoneNumber, testBook);
+    }
+
+    @Test
+    public void removeEntryShouldPassTheContactNameAndBookNameToAddressBookService() throws Exception {
+        addressBookController.removeEntry(testName, testBook);
+        verify(addressBookService).removeByName(testName, testBook);
+    }
+
+    @Test
+    public void readAllEntriesShouldReturnAllContactsFromTheSpecifiedBookAsAnArrayOfStrings() {
+        List<String> expectedResult = new ArrayList<>();
+        List<Contact> mockContactList = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            String newName = testName + i;
+            mockContactList.add(new Contact(newName, testPhoneNumber));
+            expectedResult.add("Name: " + newName + "\tPhone Number: " + testPhoneNumber);
+        }
+
+        when(addressBookService.getAllEntries(testBook)).thenReturn(mockContactList);
+        assertEquals(expectedResult, addressBookController.readAllEntries(testBook));
     }
 }

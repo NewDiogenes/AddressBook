@@ -35,13 +35,13 @@ public class AddressBookServiceTest {
     @Test
     public void searchByNameReturnsNullWhenNoEntriesMatchTheNameGiven() {
         addressBookService.addNewEntry(testName, testPhoneNumber);
-        assertNull(addressBookService.searchByName("false name"));
+        assertNull(addressBookService.getContactList().get("false name"));
     }
 
     @Test
     public void searchByNameReturnsContactMatchingTheNameGiven() {
         assertTrue(addressBookService.addNewEntry(testName, testPhoneNumber));
-        assertEquals(new Contact(testName, testPhoneNumber), addressBookService.searchByName(testName));
+        assertEquals(new Contact(testName, testPhoneNumber), addressBookService.getContactList().get(testName));
     }
 
     @Test
@@ -49,13 +49,19 @@ public class AddressBookServiceTest {
         addressBookService.addNewEntry(testName, testPhoneNumber);
         String duplicatePhoneNumber = "0000 0000";
         assertFalse(addressBookService.addNewEntry(testName, duplicatePhoneNumber));
-        assertNotEquals(new Contact(testName, duplicatePhoneNumber), addressBookService.searchByName(testName));
+        assertNotEquals(new Contact(testName, duplicatePhoneNumber), addressBookService.getContactList().get(testName));
     }
 
     @Test
     public void removeByNameRemovesTheEntryMatchingTheNameGiven() {
         addressBookService.addNewEntry(testName, testPhoneNumber);
         addressBookService.removeByName(testName);
-        assertNull(addressBookService.searchByName(testName));
+        assertNull(addressBookService.getContactList().get(testName));
+    }
+
+    @Test
+    public void addNewBookShouldAddANewAddressBookWithTheGivenName() {
+        addressBookService.addNewBook("new book");
+        assertNotNull(addressBookService.getBooks().get("new book"));
     }
 }
