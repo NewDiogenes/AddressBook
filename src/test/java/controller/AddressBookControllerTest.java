@@ -1,15 +1,18 @@
 package controller;
 
-import model.Contact;
+import model.AddressBook;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import service.AddressBookService;
+import service.ContactService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -20,9 +23,15 @@ import static org.mockito.Mockito.when;
 public class AddressBookControllerTest {
     private String testName = "test name";
     private String testPhoneNumber = "+00 1234567890";
-    private String testBook = "test book";
+    private String testBookName = "test book";
+    private AddressBook testBook;
+    private AddressBook defaultBook;
+    private Map<String, AddressBook> bookList;
+    private Map<String, String> contactList;
     @Mock
     private AddressBookService addressBookService;
+    @Mock
+    private ContactService contactService;
 
     @InjectMocks
     private AddressBookController addressBookController;
@@ -30,68 +39,48 @@ public class AddressBookControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        this.addressBookController = new AddressBookController();
+        addressBookController = new AddressBookController();
         MockitoAnnotations.initMocks(this);
-    }
-
-
-    @Test
-    public void addNewEntryShouldPassNewAddressToAddressBookService() {
-        addressBookController.addNewEntry(testName, testPhoneNumber);
-        verify(addressBookService).addNewEntry(testName, testPhoneNumber);
-    }
-
-    @Test
-    public void removeEntryShouldPassTheContactNameToAddressBookService() throws Exception {
-        addressBookController.removeEntry(testName);
-        verify(addressBookService).removeByName(testName);
+        bookList = new HashMap<>();
+        testBook = new AddressBook(new HashMap<>());
+        defaultBook = new AddressBook(new HashMap<>());
+        bookList.put(AddressBookController.DEFAULT_BOOK_NAME, defaultBook);
+        bookList.put(testBookName, testBook);
     }
 
     @Test
-    public void readAllEntriesShouldReturnAllContactsAsAnArrayOfStrings() {
-        List<String> expectedResult = new ArrayList<>();
-        List<Contact> mockContactList = new ArrayList<>();
-
-        for (int i = 0; i < 3; i++) {
-            String newName = testName + i;
-            mockContactList.add(new Contact(newName, testPhoneNumber));
-            expectedResult.add("Name: " + newName + "\tPhone Number: " + testPhoneNumber);
-        }
-
-        when(addressBookService.getAllEntries()).thenReturn(mockContactList);
-        assertEquals(expectedResult, addressBookController.readAllEntries());
+    public void addNewEntryShouldPassNewAddressAndDefaultBookToContactService() {
+        addressBookController.addNewEntry(bookList, testName, testPhoneNumber);
+        verify(contactService).addNewEntry(defaultBook, testName, testPhoneNumber);
     }
 
     @Test
-    public void addNewBookShouldPassNewBookNameToAddressBookServiceService() {
-        addressBookController.addNewBook(testBook);
-        verify(addressBookService).addNewBook(testBook);
+    public void removeEntryShouldPassTheContactNameAndDefaultBookToContactBookService() throws Exception {
+        addressBookController.removeEntry(bookList, testName);
+        verify(contactService).removeEntry(defaultBook, testName);
     }
 
     @Test
-    public void addNewEntryShouldPassNewAddressAndBookNameToAddressBookService() {
-        addressBookController.addNewEntry(testName, testPhoneNumber, testBook);
-        verify(addressBookService).addNewEntry(testName, testPhoneNumber, testBook);
+    public void addBookShouldPassNewBookNameAndTheBookListToAddressBookServiceService() {
+        addressBookController.addBook(bookList, testBookName);
+        verify(addressBookService).addNewBook(bookList, testBookName);
     }
 
     @Test
-    public void removeEntryShouldPassTheContactNameAndBookNameToAddressBookService() throws Exception {
-        addressBookController.removeEntry(testName, testBook);
-        verify(addressBookService).removeByName(testName, testBook);
+    public void addNewEntryShouldPassNewContactAndSpecifiedBookToAddressBookService() {
+        addressBookController.addNewEntry(bookList, testName, testPhoneNumber, testBookName);
+        verify(contactService).addNewEntry(testBook, testName, testPhoneNumber);
     }
 
     @Test
-    public void readAllEntriesShouldReturnAllContactsFromTheSpecifiedBookAsAnArrayOfStrings() {
-        List<String> expectedResult = new ArrayList<>();
-        List<Contact> mockContactList = new ArrayList<>();
+    public void removeEntryShouldPassTheContactNameAndBookNameToAddressBookService() {
+        addressBookController.removeEntry(bookList, testName, testBookName);
+        verify(contactService).removeEntry(testBook, testName);
+    }
 
-        for (int i = 0; i < 3; i++) {
-            String newName = testName + i;
-            mockContactList.add(new Contact(newName, testPhoneNumber));
-            expectedResult.add("Name: " + newName + "\tPhone Number: " + testPhoneNumber);
-        }
-
-        when(addressBookService.getAllEntries(testBook)).thenReturn(mockContactList);
-        assertEquals(expectedResult, addressBookController.readAllEntries(testBook));
+    @Test
+    public void addNewEntryShouldCreateAnAddressBookIfOneWithTheSpecifiedNameDoesNotExist() {
+        addressBookController.addNewEntry(bookList, testName, testPhoneNumber, "other name");
+        verify(addressBookService).addNewBook(bookList, "other name");
     }
 }

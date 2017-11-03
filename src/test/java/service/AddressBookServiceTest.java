@@ -1,67 +1,44 @@
 package service;
 
-import model.Contact;
+import model.AddressBook;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
 public class AddressBookServiceTest {
     private AddressBookService addressBookService;
-    private String testName = "test name";
-    private String testPhoneNumber = "+00 1234567890";
+    private Map<String, AddressBook> bookList;
+    private String bookName = "new book";
+    private AddressBook testBook;
 
     @Before
     public void setUp() throws Exception {
         addressBookService = new AddressBookService();
-    }
-
-    @Test
-    public void getAllEntriesReturnsAnEmptyListWhenThereAreNoAddresses() {
-        assertEquals(Collections.emptyList(), addressBookService.getAllEntries());
-    }
-
-    @Test
-    public void addNewEntryAddsANewEntryToTheList() {
-        addressBookService.addNewEntry(testName, testPhoneNumber);
-        assertEquals(1, addressBookService.getAllEntries().size());
-    }
-
-    @Test
-    public void searchByNameReturnsNullWhenNoEntriesMatchTheNameGiven() {
-        addressBookService.addNewEntry(testName, testPhoneNumber);
-        assertNull(addressBookService.getContactList().get("false name"));
-    }
-
-    @Test
-    public void searchByNameReturnsContactMatchingTheNameGiven() {
-        assertTrue(addressBookService.addNewEntry(testName, testPhoneNumber));
-        assertEquals(new Contact(testName, testPhoneNumber), addressBookService.getContactList().get(testName));
-    }
-
-    @Test
-    public void addNewEntryDoesNotAddANewEntryIfThereExistsAnEntryWithTheSameName() {
-        addressBookService.addNewEntry(testName, testPhoneNumber);
-        String duplicatePhoneNumber = "0000 0000";
-        assertFalse(addressBookService.addNewEntry(testName, duplicatePhoneNumber));
-        assertNotEquals(new Contact(testName, duplicatePhoneNumber), addressBookService.getContactList().get(testName));
-    }
-
-    @Test
-    public void removeByNameRemovesTheEntryMatchingTheNameGiven() {
-        addressBookService.addNewEntry(testName, testPhoneNumber);
-        addressBookService.removeByName(testName);
-        assertNull(addressBookService.getContactList().get(testName));
+        bookList = new HashMap<>();
+        Map<String, String> testContacts = new HashMap<>();
+        testContacts.put("test book", "+00 1234567890");
+        testBook = new AddressBook(testContacts);
     }
 
     @Test
     public void addNewBookShouldAddANewAddressBookWithTheGivenName() {
-        addressBookService.addNewBook("new book");
-        assertNotNull(addressBookService.getBooks().get("new book"));
+        bookList = addressBookService.addNewBook(bookList, bookName);
+        assertTrue(bookList.containsKey(bookName));
+    }
+
+    @Test
+    public void setBookShouldDoNothingIfTheBookDoesNotExist() {
+        bookList = addressBookService.addNewBook(bookList, bookName);
+        assertEquals(bookList, addressBookService.setBook(bookList, "wrong name", testBook));
+    }
+
+    @Test
+    public void setBookShouldReplaceTheBookMatchingTheNameGiven() {
+        bookList = addressBookService.addNewBook(bookList, bookName);
+        assertEquals(testBook, addressBookService.setBook(bookList, bookName, testBook).get(bookName));
     }
 }

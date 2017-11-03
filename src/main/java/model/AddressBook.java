@@ -1,29 +1,15 @@
 package model;
 
-import java.util.List;
+import java.util.Map;
 
 public class AddressBook {
-    private String name;
-    private List<Contact> contactList;
+    private Map<String, String> contactList;
 
-    public AddressBook(String name, List<Contact> contactList) {
-        this.name = name;
+    public AddressBook(Map<String, String> contactList) {
         this.contactList = contactList;
     }
 
-    public AddressBook(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Contact> getContactList() {
+    public Map<String, String> getContactList() {
         return contactList;
-    }
-
-    public void setContactList(List<Contact> contactList) {
-        this.contactList = contactList;
     }
 }
